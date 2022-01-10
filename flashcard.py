@@ -24,11 +24,22 @@ def restart():
     gen_dict()
 
 
+# --------------- Save words to review when closing ---------- #
+def save_review():
+    pandas.DataFrame(need_reviewed).to_csv("review.csv", mode="w")
+    window.destroy()
+
+
 # ----------------- Review Missed Words ----------------------- #
 def review():
-    global prev_selected
+    global prev_selected, need_reviewed
     flash_label.config(text="Review what you missed", font=FONT, bg="#dde1e0", height=7)
-    prev_selected = []
+    if len(need_reviewed['Spanish']) > 0:
+        pass
+        prev_selected = []
+    else:
+        need_reviewed = pandas.read_csv('review.csv', encoding='utf-8')
+        prev_selected = []
     gen_dict()
 
 
@@ -59,7 +70,6 @@ def word_gen():
         sel = True
         while sel:
             select = randint(0, init_length - 1)
-            print(select)
             if select not in prev_selected:
                 sel = False
         prev_selected.append(select)
@@ -74,7 +84,6 @@ def word_gen():
 
     english = language_dict.English[select]
     spanish = language_dict.Spanish[select]
-    print(language_dict)
     language_dict.drop(labels=select, axis=0, inplace=True)
 
 
@@ -99,6 +108,7 @@ x_Left = int(window.winfo_screenwidth()/2 - 350)
 y_Top = int(window.winfo_screenheight()/2 - 300)
 window.geometry("+{}+{}".format(x_Left, y_Top))
 window.resizable(width=False, height=False)
+window.protocol("WM_DELETE_WINDOW", save_review)
 
 # ------------------------- GUI -------------------------------- #
 gen_dict()
